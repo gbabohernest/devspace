@@ -6,12 +6,13 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Username is required"],
       trim: true,
-      minLength: [2, "Username should be at least three(3) characters "],
-      maxLength: [30, "Username cannot be more than fifty(50) characters"],
+      minLength: [3, "Username must be at least 3 characters "],
+      maxLength: [30, "Username cannot exceeds 30 characters"],
       match: [
         /^[A-Za-z][A-Za-z0-9_]{2,29}$/,
-        "Username must start with a letter, not a number",
+        "Username must start with a letter and only contain letters, numbers, and underscores",
       ],
+      index: true,
     },
 
     email: {
@@ -20,20 +21,28 @@ const userSchema = new mongoose.Schema(
       trim: true,
       lowercase: true,
       unique: true,
-      match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Please provide a valid email"],
+      validate: {
+        validator: (value) => /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(value),
+        message: "Please enter a valid email address",
+      },
+      index: true,
     },
 
     password: {
       type: String,
       required: [true, "Password is required"],
-      minLength: [6, "At least six (6) character for password"],
-      maxLength: [1024, "Password too long"],
+      minLength: [8, "Must be at least 8 characters"],
+      maxLength: [128, "Password cannot exceed 128 character"],
+      select: false,
     },
 
     role: {
       type: String,
+      enum: {
+        values: ["user", "admin"],
+        message: "{VALUE} is not a valid role",
+      },
       default: "user",
-      enum: ["user", "admin"],
     },
   },
   { timestamps: true },
