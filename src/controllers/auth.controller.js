@@ -6,18 +6,28 @@ import {
 import { StatusCodes } from "http-status-codes";
 import User from "../models/user.model.js";
 import transactionHelper from "../utils/helpers/transaction.js";
+import {
+  authenticateUserValidator,
+  userValidationSchema,
+} from "../utils/validators/user.validation.js";
 
 const registerUser = async (req, res, next) => {
   await transactionHelper(async (session) => {
-    const { username, email, password } = req.body;
+    let { username, email, password } = req.body;
 
-    if (!username || !email || !password) {
-      return next(
-        new BadRequestError("Please provide username, email, password"),
-      );
+    const { error, value } = userValidationSchema.validate({
+      username,
+      email,
+      password,
+    });
+
+    if (error) {
+      return next(new BadRequestError(error?.details[0]?.message));
     }
 
-    //!TODO validate inputs using a validation library
+    username = value.username;
+    email = value.email;
+    password = value.password;
 
     const existingUser = await User.findOne({ email }, { email: 1 }, null);
     if (existingUser) {
@@ -47,17 +57,25 @@ const registerUser = async (req, res, next) => {
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
-    throw new BadRequestError("Please provide email and password");
-  }
+  const { error, value } = authenticateUserValidator.validate({
+    email,
+    password,
+  });
 
-  const user = await User.findOne({ email }, { email: 1, password: 1 }, null);
+  if (error) {
+    throw new BadRequestError(error?.details[0]?.message);
+  }
+  const user = await User.findOne(
+    { email: value.email },
+    { email: 1, password: 1 },
+    null,
+  );
 
   if (!user) {
     throw new AuthError("Invalid Email credential");
   }
 
-  const isPasswordVerified = await user.isPwdVerified(password);
+  const isPasswordVerified = await user.isPwdVerified(value.password);
 
   if (!isPasswordVerified) {
     throw new AuthError("Invalid credential");
