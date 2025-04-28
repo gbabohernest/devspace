@@ -1,4 +1,8 @@
-import CustomApiError from "../utils/errors/custom-api.error.js";
+import {
+  CustomApiError,
+  BadRequestError,
+  AuthError,
+} from "../utils/index.utils.js";
 import { StatusCodes } from "http-status-codes";
 import User from "../models/user.model.js";
 import transactionHelper from "../utils/helpers/transaction.js";
@@ -9,10 +13,7 @@ const registerUser = async (req, res, next) => {
 
     if (!username || !email || !password) {
       return next(
-        new CustomApiError(
-          "Please provide username, email, password",
-          StatusCodes.BAD_REQUEST,
-        ),
+        new BadRequestError("Please provide username, email, password"),
       );
     }
 
@@ -44,6 +45,31 @@ const registerUser = async (req, res, next) => {
 };
 
 const loginUser = async (req, res) => {
-  res.status(200).json({ success: true, message: "testing login..." });
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    throw new BadRequestError("Please provide email and password");
+  }
+
+  const user = await User.findOne({ email }, { email: 1, password: 1 }, null);
+
+  if (!user) {
+    throw new AuthError("Invalid Email credential");
+  }
+
+  const isPasswordVerified = await user.isPwdVerified(password);
+
+  if (!isPasswordVerified) {
+    throw new AuthError("Invalid credential");
+  }
+
+  try {
+    const token = await user.generateToken();
+    res
+      .status(StatusCodes.OK)
+      .json({ success: true, message: "Login success", token });
+  } catch (error) {
+    new CustomApiError(error.message, StatusCodes.INTERNAL_SERVER_ERROR);
+  }
 };
 export { registerUser, loginUser };
