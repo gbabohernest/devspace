@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import { CustomApiError } from "../utils/index.utils.js";
+import { StatusCodes } from "http-status-codes";
 
 const projectSchema = new mongoose.Schema(
   {
@@ -8,6 +10,7 @@ const projectSchema = new mongoose.Schema(
       trim: true,
       minLength: [3, "Title must be atl least 3 characters"],
       maxLength: [50, "Title cannot exceed 50 characters"],
+      index: true,
     },
     description: {
       type: String,
@@ -20,18 +23,30 @@ const projectSchema = new mongoose.Schema(
       ],
     },
 
-    technologies: {
-      type: [String],
+    tech: {
+      type: mongoose.Schema.Types.Mixed,
       required: [true, "Tech stack is required"],
       validate: [
         {
-          validator: (arr) => arr.length > 0,
-          msg: "At least on technology required",
+          validator: function (value) {
+            return Array.isArray(value);
+          },
+          message: "Tech stack must be an array of strings",
+        },
+
+        {
+          validator: function (value) {
+            return value.length > 0;
+          },
+          message: "Tech stack must contain at least one technology",
         },
         {
-          validator: (arr) =>
-            arr.every((tech) => typeof tech === "string" && tech.trim() !== ""),
-          msg: "Invalid technology entry",
+          validator: function (value) {
+            return value.every(
+              (item) => typeof item === "string" && item.trim() !== "",
+            );
+          },
+          message: "Each technology must be a non-empty string",
         },
       ],
     },
@@ -39,10 +54,44 @@ const projectSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: [true, "Project owner is required"],
+      index: true,
     },
   },
   { timestamps: true },
 );
+
+// these fields must always be unique: a user cannot create multiple projects with the same title.
+projectSchema.index({ title: 1, createdBy: 1 }, { unique: true });
+
+//Restrict Project duplication by a user. A user cannot create a project with the same title.
+projectSchema.pre("save", async function (next) {
+  if (this.isNew) {
+    const existingProject = await mongoose.models.Project.findOne(
+      {
+        title: this.title,
+        createdBy: this.createdBy,
+      },
+      { title: 1, createdBy: 1 },
+      null,
+    );
+
+    if (existingProject) {
+      return next(
+        new CustomApiError(
+          "Project name already exists in your account, Try another name",
+          StatusCodes.CONFLICT,
+        ),
+      );
+    }
+  }
+
+  next();
+});
+
+projectSchema.pre("save", function (next) {
+  this.tech = this.tech.map((value) => value.trim().toLowerCase());
+  next();
+});
 
 const Project = mongoose.model("Project", projectSchema);
 
