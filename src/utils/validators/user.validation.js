@@ -8,9 +8,9 @@ const userValidationSchema = Joi.object({
     .required()
     .messages({
       "string.pattern.base":
-        "Joi - Username must start with a letter and only contain letters, numbers, and underscores, no space(s)",
-      "string.min": "Joi - Username must be at least 3 characters",
-      "string.max": "Joi - Username cannot exceed 30 characters",
+        "Username must start with a letter and only contain letters, numbers, and underscores, no space(s)",
+      "string.min": "Username must be at least 3 characters",
+      "string.max": "Username cannot exceed 30 characters",
     }),
 
   email: Joi.string()
@@ -19,12 +19,12 @@ const userValidationSchema = Joi.object({
     .required()
     .messages({
       "string.email":
-        "Joi - Please provide a valid email address that ends with .com or .net",
+        "Please provide a valid email address that ends with .com or .net",
     }),
 
   password: Joi.string().min(8).max(128).required().messages({
-    "string.min": "Joi - Password must be at least 8 characters",
-    "string.max": "Joi - Password cannot exceed 128 characters",
+    "string.min": "Password must be at least 8 characters",
+    "string.max": "Password cannot exceed 128 characters",
   }),
 });
 
