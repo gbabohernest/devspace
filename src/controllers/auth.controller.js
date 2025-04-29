@@ -67,7 +67,7 @@ const loginUser = async (req, res) => {
   }
   const user = await User.findOne(
     { email: value.email },
-    { email: 1, password: 1 },
+    { email: 1, password: 1, username: 1, role: 1 },
     null,
   );
 
@@ -83,9 +83,12 @@ const loginUser = async (req, res) => {
 
   try {
     const token = await user.generateToken();
+    const userData = user.toObject();
+    delete userData.password;
+
     res
       .status(StatusCodes.OK)
-      .json({ success: true, message: "Login success", token });
+      .json({ success: true, message: "Login success", token, userData });
   } catch (error) {
     new CustomApiError(error.message, StatusCodes.INTERNAL_SERVER_ERROR);
   }
