@@ -8,7 +8,7 @@ const projectSchema = new mongoose.Schema(
       type: String,
       required: [true, "Project title is required"],
       trim: true,
-      minLength: [3, "Title must be atl least 3 characters"],
+      minLength: [3, "Title must be at least 3 characters"],
       maxLength: [50, "Title cannot exceed 50 characters"],
       index: true,
     },
@@ -57,13 +57,44 @@ const projectSchema = new mongoose.Schema(
       index: true,
     },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    // toObject: { virtuals: true },
+  },
 );
 
 // these fields must always be unique: a user cannot create multiple projects with the same title.
 projectSchema.index({ title: 1, createdBy: 1 }, { unique: true });
 
-//Restrict Project duplication by a user. A user cannot create a project with the same title.
+/**
+ * A virtual field | Will be added to the Json response but won't be saved to DB
+ */
+projectSchema.virtual("creator", {
+  ref: "User",
+  localField: "createdBy",
+  foreignField: "_id",
+  justOne: true,
+  // option: { select: "username -_id" },
+});
+
+/**
+ * Ensure that when the response is sent back, it includes the virtauls field(s).
+ * transform: Before you send back the document make some changes ( happen during  doc serialization (JSON))
+ */
+projectSchema.set("toJSON", {
+  virtuals: true,
+  versionKey: false, //remove _v
+  transform: (doc, ret) => {
+    delete ret.id;
+    delete ret.createdBy;
+    return ret;
+  },
+});
+
+/**
+ * Restrict Project duplications by a user.
+ * A user cannot create a project with the same title.
+ */
 projectSchema.pre("save", async function (next) {
   if (this.isNew) {
     const existingProject = await mongoose.models.Project.findOne(
