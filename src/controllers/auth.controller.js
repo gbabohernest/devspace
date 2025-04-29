@@ -29,22 +29,33 @@ const registerUser = async (req, res, next) => {
     email = value.email;
     password = value.password;
 
-    const existingUser = await User.findOne({ email }, { email: 1 }, null);
+    const existingUser = await User.findOne(
+      { $or: [{ email }, { username }] },
+      { email: 1, username: 1 },
+      null,
+    );
     if (existingUser) {
       return next(
         new CustomApiError(
-          "Try again with another email.",
+          "Try again with another email or username.",
           StatusCodes.CONFLICT,
         ),
       );
     }
 
-    const user = await User.create([{ username, email, password }], {
+    let user = await User.create([{ username, email, password }], {
       session,
     });
 
-    const userData = user[0].toObject();
-    delete userData.password;
+    user = user[0].toObject();
+    const userData = {
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      password: user.password, //shows we are hashing the password
+    };
+
+    // delete userData.password;
 
     return res.status(StatusCodes.CREATED).json({
       success: true,
@@ -67,7 +78,7 @@ const loginUser = async (req, res) => {
   }
   const user = await User.findOne(
     { email: value.email },
-    { email: 1, password: 1 },
+    { email: 1, password: 1, username: 1, role: 1 },
     null,
   );
 
@@ -83,9 +94,13 @@ const loginUser = async (req, res) => {
 
   try {
     const token = await user.generateToken();
+    const userData = user.toObject();
+    delete userData.password;
+    delete userData._id;
+
     res
       .status(StatusCodes.OK)
-      .json({ success: true, message: "Login success", token });
+      .json({ success: true, message: "Login success", token, userData });
   } catch (error) {
     new CustomApiError(error.message, StatusCodes.INTERNAL_SERVER_ERROR);
   }
