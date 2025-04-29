@@ -1,6 +1,9 @@
 import transactionHelper from "../utils/helpers/transaction.js";
 import Project from "../models/project.model.js";
-import { BadRequestError, CustomApiError } from "../utils/index.utils.js";
+import {
+  BadRequestError,
+  ResourceNotFoundError,
+} from "../utils/index.utils.js";
 import { StatusCodes } from "http-status-codes";
 import projectValidationSchema from "../utils/validators/project.validation.js";
 
@@ -53,7 +56,9 @@ const getProjects = async (req, res) => {
     {},
     { title: 1, description: 1, tech: 1, createdBy: 1 },
     null,
-  ).sort({ createdAt: -1 });
+  )
+    .sort({ createdAt: -1 })
+    .populate("creator", "username -_id");
 
   if (!projects) {
     return res.status(StatusCodes.OK).json({
@@ -71,4 +76,29 @@ const getProjects = async (req, res) => {
   });
 };
 
-export { createProject, getProjects };
+/**
+ * Get more details about a project - PUBLIC
+ * @param req
+ * @param res
+ * @returns {Promise<void>}
+ */
+const getProject = async (req, res) => {
+  const { id: projectId } = req.params;
+
+  const project = await Project.findById({ _id: projectId }, "", null).populate(
+    "creator",
+    "username -_id",
+  );
+
+  if (!project) {
+    throw new ResourceNotFoundError("Sorry, No project Found, Try again!");
+  }
+
+  res.status(StatusCodes.OK).json({
+    success: true,
+    message: "Project Details Retrieved",
+    data: project,
+  });
+};
+
+export { createProject, getProjects, getProject };
