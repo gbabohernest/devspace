@@ -134,4 +134,29 @@ const updateProject = async (req, res, next) => {
   }, next);
 };
 
-export { createProject, getProjects, getProject, updateProject };
+/**
+ * Delete a project | Authenticated User
+ * @param req
+ * @param res
+ * @param next
+ * @returns {Promise<void>}
+ */
+
+const deleteProject = async (req, res, next) => {
+  await transactionHelper(async (session) => {
+    const { id: productId } = req.params;
+
+    const project = await Project.findOneAndDelete(
+      { _id: productId, createdBy: req.userInfo.userId },
+      { title: 1, createdBy: 1 },
+    ).session(session);
+
+    if (!project) {
+      return next(new ResourceNotFoundError("No project found to delete"));
+    }
+
+    res.status(StatusCodes.NO_CONTENT).end();
+  }, next);
+};
+
+export { createProject, getProjects, getProject, updateProject, deleteProject };
