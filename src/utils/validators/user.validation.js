@@ -13,6 +13,14 @@ const userValidationSchema = Joi.object({
       "string.max": "Username cannot exceed 30 characters",
     }),
 
+  bio: Joi.string()
+    .max(100)
+    .default(
+      "I am a user who hasn't updated my bio yet but loves using the Devspace API.",
+    )
+    .optional()
+    .messages({ "string.max": "Bio cannot be more than a 100 characters" }),
+
   email: Joi.string()
     .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
     .trim(true)
