@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { JWT_EXPIRES_IN, JWT_SECRET_KEY } from "../../config/env.js";
+import formatDate from "../utils/helpers/dateFormatter.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -17,6 +18,14 @@ const userSchema = new mongoose.Schema(
         "Username must start with a letter and only contain letters, numbers, and underscores, no space(s)",
       ],
       index: true,
+    },
+
+    bio: {
+      type: String,
+      trim: true,
+      maxLength: [100, "Bio cannot exceeds 100 characters"],
+      default:
+        "I am a user who hasn't updated my bio yet but loves using the Devspace API.",
     },
 
     email: {
@@ -59,6 +68,18 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
+/**
+ * Format the createdAt & updatedAt properties to  a readable format in API response.
+ */
+userSchema.set("toJSON", {
+  transform: (doc, ret) => {
+    ret.createdAt = formatDate(ret.createdAt);
+    ret.updatedAt = formatDate(ret.updatedAt);
+    // delete ret._id;
+    delete ret.__v;
+    return ret;
+  },
+});
 userSchema.methods.isPwdVerified = async function (userPassword) {
   return await bcrypt.compare(userPassword, this.password);
 };
@@ -69,6 +90,15 @@ userSchema.methods.generateToken = async function () {
     JWT_SECRET_KEY,
     { expiresIn: JWT_EXPIRES_IN },
   );
+};
+
+userSchema.methods.getTotalProjects = async function (userId) {
+  const projects = await mongoose.models.Project.find(
+    { createdBy: userId },
+    "createdBy",
+    null,
+  );
+  return projects.length;
 };
 const User = mongoose.model("User", userSchema);
 
