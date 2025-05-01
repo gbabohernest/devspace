@@ -52,13 +52,21 @@ const createProject = async (req, res, next) => {
  * @returns {Promise<void>}
  */
 const getProjects = async (req, res) => {
-  const projects = await Project.find(
-    {},
-    { title: 1, description: 1, tech: 1, createdBy: 1 },
-    null,
-  )
-    .sort({ createdAt: -1 })
-    .populate("creator", "username -_id");
+  //prevent negative page/limit values
+  const page = Math.max(1, parseInt(req.query?.page)) || 1;
+  const limit = Math.min(50, Math.max(1, parseInt(req.query?.limit))) || 2;
+
+  const skip = (page - 1) * limit;
+  const filter = { isPublic: true };
+
+  const [projects, nbHits] = await Promise.all([
+    Project.find(filter, "", null)
+      .sort({ updatedAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate("creator", "username -_id"),
+    Project.countDocuments(filter),
+  ]);
 
   if (!projects) {
     return res.status(StatusCodes.OK).json({
@@ -68,11 +76,16 @@ const getProjects = async (req, res) => {
     });
   }
 
+  const totalPages = Math.ceil(nbHits / limit);
+
   res.status(StatusCodes.OK).json({
     success: true,
     message: "Paginated List of Projects",
-    nbHits: projects.length,
-    data: projects,
+    projects,
+    page,
+    limit,
+    totalPages,
+    nbHits,
   });
 };
 
@@ -85,7 +98,7 @@ const getProjects = async (req, res) => {
 const getProject = async (req, res) => {
   const { id: projectId } = req.params;
 
-  const project = await Project.findById({ _id: projectId }, "", null).populate(
+  const project = await Project.findById(projectId, "", null).populate(
     "creator",
     "username -_id",
   );
@@ -97,7 +110,7 @@ const getProject = async (req, res) => {
   res.status(StatusCodes.OK).json({
     success: true,
     message: "Project Details Retrieved",
-    data: project,
+    project,
   });
 };
 
@@ -141,7 +154,6 @@ const updateProject = async (req, res, next) => {
  * @param next
  * @returns {Promise<void>}
  */
-
 const deleteProject = async (req, res, next) => {
   await transactionHelper(async (session) => {
     const { id: productId } = req.params;
