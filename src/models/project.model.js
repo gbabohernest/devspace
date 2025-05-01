@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { CustomApiError } from "../utils/index.utils.js";
 import { StatusCodes } from "http-status-codes";
+import formatDate from "../utils/helpers/dateFormatter.js";
 
 const projectSchema = new mongoose.Schema(
   {
@@ -50,6 +51,12 @@ const projectSchema = new mongoose.Schema(
         },
       ],
     },
+
+    isPublic: {
+      type: Boolean,
+      default: true,
+    },
+
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -57,10 +64,7 @@ const projectSchema = new mongoose.Schema(
       index: true,
     },
   },
-  {
-    timestamps: true,
-    // toObject: { virtuals: true },
-  },
+  { timestamps: true },
 );
 
 // these fields must always be unique: a user cannot create multiple projects with the same title.
@@ -74,7 +78,7 @@ projectSchema.virtual("creator", {
   localField: "createdBy",
   foreignField: "_id",
   justOne: true,
-  // option: { select: "username -_id" },
+  options: { select: "-createdAt -updatedAt", lean: true },
 });
 
 /**
@@ -85,8 +89,11 @@ projectSchema.set("toJSON", {
   virtuals: true,
   versionKey: false, //remove _v
   transform: (doc, ret) => {
+    ret.createdAt = formatDate(ret.createdAt);
+    ret.updatedAt = formatDate(ret.updatedAt);
     delete ret.id;
     delete ret.createdBy;
+    // delete ret._id;
     return ret;
   },
 });
