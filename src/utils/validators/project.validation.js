@@ -20,6 +20,8 @@ const projectValidationSchema = Joi.object({
   tech: Joi.array().items(Joi.string().trim().min(1)).required().messages({
     "array.min": "At least one technology is required",
   }),
+
+  isPublic: Joi.boolean().default(true).optional(),
 });
 
 export default projectValidationSchema;

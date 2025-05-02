@@ -6,6 +6,7 @@ import {
 } from "../utils/index.utils.js";
 import { StatusCodes } from "http-status-codes";
 import projectValidationSchema from "../utils/validators/project.validation.js";
+import paginate from "../utils/paginate.js";
 
 /**
  * Create project, protected route, only authenticated users are allow to create project(s).
@@ -16,13 +17,14 @@ import projectValidationSchema from "../utils/validators/project.validation.js";
  */
 const createProject = async (req, res, next) => {
   await transactionHelper(async (session) => {
-    let { title, description, tech } = req.body;
+    let { title, description, tech, isPublic } = req.body;
     const { userId } = req.userInfo;
 
     const { error, value } = projectValidationSchema.validate({
       title,
       description,
       tech,
+      isPublic,
     });
 
     if (error) {
@@ -32,9 +34,10 @@ const createProject = async (req, res, next) => {
     title = value.title;
     description = value.description;
     tech = value.tech;
+    isPublic = value.isPublic;
 
     const project = await Project.create(
-      [{ title, description, tech, createdBy: userId }],
+      [{ title, description, tech, isPublic, createdBy: userId }],
       { session },
     );
     return res.status(StatusCodes.CREATED).json({
@@ -52,27 +55,23 @@ const createProject = async (req, res, next) => {
  * @returns {Promise<void>}
  */
 const getProjects = async (req, res) => {
-  const projects = await Project.find(
-    {},
-    { title: 1, description: 1, tech: 1, createdBy: 1 },
-    null,
-  )
-    .sort({ createdAt: -1 })
-    .populate("creator", "username -_id");
+  const filter = { isPublic: true };
+  const sort = { updatedAt: -1 };
 
-  if (!projects) {
+  const projects = await paginate(req, Project, filter, sort, "creator");
+
+  if (projects.data.length < 1) {
     return res.status(StatusCodes.OK).json({
       success: true,
       message: "No Project Found, signup and upload project(s)",
-      projects,
+      data: projects.data,
     });
   }
 
   res.status(StatusCodes.OK).json({
     success: true,
     message: "Paginated List of Projects",
-    nbHits: projects.length,
-    data: projects,
+    projects,
   });
 };
 
@@ -85,7 +84,7 @@ const getProjects = async (req, res) => {
 const getProject = async (req, res) => {
   const { id: projectId } = req.params;
 
-  const project = await Project.findById({ _id: projectId }, "", null).populate(
+  const project = await Project.findById(projectId, "", null).populate(
     "creator",
     "username -_id",
   );
@@ -97,7 +96,7 @@ const getProject = async (req, res) => {
   res.status(StatusCodes.OK).json({
     success: true,
     message: "Project Details Retrieved",
-    data: project,
+    project,
   });
 };
 
@@ -141,7 +140,6 @@ const updateProject = async (req, res, next) => {
  * @param next
  * @returns {Promise<void>}
  */
-
 const deleteProject = async (req, res, next) => {
   await transactionHelper(async (session) => {
     const { id: productId } = req.params;
