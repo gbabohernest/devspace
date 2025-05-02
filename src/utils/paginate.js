@@ -50,13 +50,13 @@ const paginate = async (
       .skip(skip)
       .limit(limit)
       .populate(virtual, "username -_id"),
-    Model.countDocuments(),
+    Model.countDocuments(filter),
   ]);
 
   const totalPages = Math.ceil(totalItems / limit);
 
   return {
-    nbHits: data.length,
+    nbHits: totalItems,
     currentPage: page,
     numberOfPages: totalPages,
     limit,
