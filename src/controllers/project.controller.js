@@ -6,6 +6,7 @@ import {
 } from "../utils/index.utils.js";
 import { StatusCodes } from "http-status-codes";
 import projectValidationSchema from "../utils/validators/project.validation.js";
+import paginate from "../utils/paginate.js";
 
 /**
  * Create project, protected route, only authenticated users are allow to create project(s).
@@ -16,13 +17,14 @@ import projectValidationSchema from "../utils/validators/project.validation.js";
  */
 const createProject = async (req, res, next) => {
   await transactionHelper(async (session) => {
-    let { title, description, tech } = req.body;
+    let { title, description, tech, isPublic } = req.body;
     const { userId } = req.userInfo;
 
     const { error, value } = projectValidationSchema.validate({
       title,
       description,
       tech,
+      isPublic,
     });
 
     if (error) {
@@ -32,9 +34,10 @@ const createProject = async (req, res, next) => {
     title = value.title;
     description = value.description;
     tech = value.tech;
+    isPublic = value.isPublic;
 
     const project = await Project.create(
-      [{ title, description, tech, createdBy: userId }],
+      [{ title, description, tech, isPublic, createdBy: userId }],
       { session },
     );
     return res.status(StatusCodes.CREATED).json({
@@ -52,40 +55,23 @@ const createProject = async (req, res, next) => {
  * @returns {Promise<void>}
  */
 const getProjects = async (req, res) => {
-  //prevent negative page/limit values
-  const page = Math.max(1, parseInt(req.query?.page)) || 1;
-  const limit = Math.min(50, Math.max(1, parseInt(req.query?.limit))) || 2;
-
-  const skip = (page - 1) * limit;
   const filter = { isPublic: true };
+  const sort = { updatedAt: -1 };
 
-  const [projects, nbHits] = await Promise.all([
-    Project.find(filter, "", null)
-      .sort({ updatedAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .populate("creator", "username -_id"),
-    Project.countDocuments(filter),
-  ]);
+  const projects = await paginate(req, Project, filter, sort, "creator");
 
-  if (!projects) {
+  if (projects.data.length < 1) {
     return res.status(StatusCodes.OK).json({
       success: true,
       message: "No Project Found, signup and upload project(s)",
-      projects,
+      data: projects.data,
     });
   }
-
-  const totalPages = Math.ceil(nbHits / limit);
 
   res.status(StatusCodes.OK).json({
     success: true,
     message: "Paginated List of Projects",
     projects,
-    page,
-    limit,
-    totalPages,
-    nbHits,
   });
 };
 
