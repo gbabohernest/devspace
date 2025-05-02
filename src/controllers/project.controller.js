@@ -58,11 +58,15 @@ const getProjects = async (req, res) => {
   const filter = { isPublic: true };
   const sort = { updatedAt: -1 };
 
-  const projects = await paginate(req, Project, filter, sort, "creator", [
-    "title",
-    "description",
-    "tech",
-  ]);
+  const projects = await paginate(
+    req,
+    Project,
+    filter,
+    "",
+    sort,
+    ["title", "description", "tech"],
+    "creator",
+  );
 
   if (projects.data.length < 1) {
     return res.status(StatusCodes.OK).json({
