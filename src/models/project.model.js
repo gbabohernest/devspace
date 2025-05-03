@@ -22,6 +22,7 @@ const projectSchema = new mongoose.Schema(
         /^[A-Za-z0-9\s.,!?-]+$/,
         "Use valid characters (letters, numbers, basic punctuation)",
       ],
+      index: true,
     },
 
     tech: {
@@ -50,11 +51,13 @@ const projectSchema = new mongoose.Schema(
           message: "Each technology must be a non-empty string",
         },
       ],
+      index: true,
     },
 
     isPublic: {
       type: Boolean,
       default: true,
+      index: true,
     },
 
     createdBy: {
@@ -69,6 +72,7 @@ const projectSchema = new mongoose.Schema(
 
 // these fields must always be unique: a user cannot create multiple projects with the same title.
 projectSchema.index({ title: 1, createdBy: 1 }, { unique: true });
+projectSchema.index({ createdAt: 1, updatedAt: 1 });
 
 /**
  * A virtual field | Will be added to the Json response but won't be saved to DB

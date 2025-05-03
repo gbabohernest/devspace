@@ -10,15 +10,17 @@ import {
   authenticateUserValidator,
   userValidationSchema,
 } from "../utils/validators/user.validation.js";
+import formatDate from "../utils/helpers/dateFormatter.js";
 
 const registerUser = async (req, res, next) => {
   await transactionHelper(async (session) => {
-    let { username, email, password } = req.body;
+    let { username, email, password, bio } = req.body;
 
     const { error, value } = userValidationSchema.validate({
       username,
       email,
       password,
+      bio,
     });
 
     if (error) {
@@ -28,6 +30,7 @@ const registerUser = async (req, res, next) => {
     username = value.username;
     email = value.email;
     password = value.password;
+    bio = value.bio;
 
     const existingUser = await User.findOne(
       { $or: [{ email }, { username }] },
@@ -43,19 +46,20 @@ const registerUser = async (req, res, next) => {
       );
     }
 
-    let user = await User.create([{ username, email, password }], {
+    let user = await User.create([{ username, email, password, bio }], {
       session,
     });
 
     user = user[0].toObject();
-    const userData = {
-      username: user.username,
-      email: user.email,
-      role: user.role,
-      password: user.password, //shows we are hashing the password
-    };
 
-    // delete userData.password;
+    const userData = {
+      Username: user.username,
+      Bio: user.bio,
+      Email: user.email,
+      Avatar: user.avatarURL,
+      Password: user.password, //shows we are hashing the password
+      "Joined Date": formatDate(user.createdAt),
+    };
 
     return res.status(StatusCodes.CREATED).json({
       success: true,
@@ -100,7 +104,7 @@ const loginUser = async (req, res) => {
 
     res
       .status(StatusCodes.OK)
-      .json({ success: true, message: "Login success", token, userData });
+      .json({ success: true, message: "Login success", token });
   } catch (error) {
     new CustomApiError(error.message, StatusCodes.INTERNAL_SERVER_ERROR);
   }

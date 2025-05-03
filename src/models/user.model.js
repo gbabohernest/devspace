@@ -1,7 +1,12 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { JWT_EXPIRES_IN, JWT_SECRET_KEY } from "../../config/env.js";
+import {
+  DEFAULT_AVATAR_PUBLIC_ID,
+  DEFAULT_AVATAR_URL,
+  JWT_EXPIRES_IN,
+  JWT_SECRET_KEY,
+} from "../../config/env.js";
 import formatDate from "../utils/helpers/dateFormatter.js";
 
 const userSchema = new mongoose.Schema(
@@ -41,6 +46,18 @@ const userSchema = new mongoose.Schema(
       index: true,
     },
 
+    avatarURL: {
+      type: String,
+      trim: true,
+      default: DEFAULT_AVATAR_URL,
+    },
+
+    avatarId: {
+      type: String,
+      trim: true,
+      default: DEFAULT_AVATAR_PUBLIC_ID,
+    },
+
     password: {
       type: String,
       required: [true, "Password is required"],
@@ -73,9 +90,10 @@ userSchema.pre("save", async function (next) {
  */
 userSchema.set("toJSON", {
   transform: (doc, ret) => {
-    ret.createdAt = formatDate(ret.createdAt);
+    // ret.createdAt = formatDate(ret.createdAt);
     ret.updatedAt = formatDate(ret.updatedAt);
     // delete ret._id;
+    delete ret.avatarId;
     delete ret.__v;
     return ret;
   },
