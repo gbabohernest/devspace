@@ -9,6 +9,8 @@ import { StatusCodes } from "http-status-codes";
 import paginate from "../../utils/paginate.js";
 import transactionHelper from "../../utils/helpers/transaction.js";
 import uploadToCloudinary from "../../utils/cloudinary.js";
+import { unlinkSync } from "node:fs";
+import deleteOldAvatarIfNotDefault from "../../utils/helpers/deleteAvatar.js";
 
 /**
  * Get User information
@@ -86,6 +88,8 @@ const changeAvatar = async (req, res, next) => {
       return next(new BadRequestError("Please add your new avatar"));
     }
 
+    await deleteOldAvatarIfNotDefault(req.userInfo.userId);
+
     const [{ url, publicId }, user] = await Promise.all([
       uploadToCloudinary(req.file.path),
       User.findById(req.userInfo.userId, { avatarURL: 1, updatedAt: 1 }, null),
@@ -95,10 +99,12 @@ const changeAvatar = async (req, res, next) => {
 
     await user.save({ session, validateBeforeSave: true, timestamp: false });
 
-    res
+    return res
       .status(200)
       .json({ success: true, message: "Avatar changed successfully", user });
   }, next);
+
+  unlinkSync(req.file.path);
 };
 
 export { getAllThisUserProjects, getThisUserInfo, changeAvatar };
