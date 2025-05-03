@@ -134,7 +134,7 @@ const updateProject = async (req, res, next) => {
     Object.assign(project, { ...req.body });
     await project.save({ session, validateBeforeSave: true, timestamp: false });
 
-    res.status(StatusCodes.OK).json({
+    return res.status(StatusCodes.OK).json({
       success: true,
       message: "Project updated successfully",
       project,
@@ -162,7 +162,7 @@ const deleteProject = async (req, res, next) => {
       return next(new ResourceNotFoundError("No project found to delete"));
     }
 
-    res.status(StatusCodes.NO_CONTENT).end();
+    return res.status(StatusCodes.NO_CONTENT).end();
   }, next);
 };
 
