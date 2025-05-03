@@ -40,6 +40,7 @@ const getProjects = async (req, res) => {
       req,
       Project,
       {},
+      "",
       { updatedAt: -1 },
       ["title", "description", "tech"],
       "creator",
