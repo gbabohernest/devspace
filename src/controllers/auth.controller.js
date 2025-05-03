@@ -51,11 +51,12 @@ const registerUser = async (req, res, next) => {
     });
 
     user = user[0].toObject();
+
     const userData = {
       Username: user.username,
       Bio: user.bio,
       Email: user.email,
-      // Role: user.role,
+      Avatar: user.avatarURL,
       Password: user.password, //shows we are hashing the password
       "Joined Date": formatDate(user.createdAt),
     };
