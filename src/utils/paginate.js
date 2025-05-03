@@ -4,19 +4,22 @@
  * @param req - Request object
  * @param Model - A mongoose data model
  * @param baseFilter - Query filter
+ * @param projection - field(s) to select or not select when fetching resource
  * @param sort - Sort query
  * @param virtual - Document's Virtual field
  * @param searchableFields - An array of  search fields.
  * @returns Object - Containing paginated data
  */
+import Project from "../models/project.model.js";
 
 const paginate = async (
   req,
   Model,
   baseFilter = {},
+  projection = "",
   sort = {},
-  virtual = "",
   searchableFields = [],
+  virtual = null,
 ) => {
   //prevent negative page/limit values
   const page = Math.max(1, parseInt(req.query?.page)) || 1;
@@ -26,6 +29,7 @@ const paginate = async (
 
   let filter = { ...baseFilter };
 
+  // search functionality
   if (req.query.search && searchableFields.length > 0) {
     const searchRegex = { $regex: req.query.search, $options: "i" };
 
@@ -44,12 +48,18 @@ const paginate = async (
      */
   }
 
+  let query = Model.find(filter)
+    .select(projection)
+    .sort(sort)
+    .skip(skip)
+    .limit(limit);
+
+  // conditionally populate only if virtual exists
+  if (virtual) {
+    query = query.populate(virtual, "username -_id");
+  }
   const [data, totalItems] = await Promise.all([
-    Model.find(filter)
-      .sort(sort)
-      .skip(skip)
-      .limit(limit)
-      .populate(virtual, "username -_id"),
+    query,
     Model.countDocuments(filter),
   ]);
 
