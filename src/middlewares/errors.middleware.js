@@ -25,7 +25,7 @@ const errorMiddleware = (err, req, res, next) => {
       statusCode = BAD_REQUEST;
     }
   }
-  res.status(statusCode).json({ success: false, message, err });
+  res.status(statusCode).json({ success: false, message });
 };
 
 export default errorMiddleware;
