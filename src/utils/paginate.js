@@ -10,7 +10,6 @@
  * @param searchableFields - An array of  search fields.
  * @returns Object - Containing paginated data
  */
-import Project from "../models/project.model.js";
 
 const paginate = async (
   req,
