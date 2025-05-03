@@ -71,7 +71,7 @@ const getProjects = async (req, res) => {
   if (projects.data.length < 1) {
     return res.status(StatusCodes.OK).json({
       success: true,
-      message: "No Project Found, signup and upload project(s)",
+      message: "No Project Found, signup and uploads project(s)",
       data: projects.data,
     });
   }
@@ -92,10 +92,11 @@ const getProjects = async (req, res) => {
 const getProject = async (req, res) => {
   const { id: projectId } = req.params;
 
-  const project = await Project.findById(projectId, "", null).populate(
-    "creator",
-    "username -_id",
-  );
+  const project = await Project.findOne(
+    { _id: projectId, isPublic: true },
+    "",
+    null,
+  ).populate("creator", "username -_id");
 
   if (!project) {
     throw new ResourceNotFoundError("Sorry, No project Found, Try again!");
