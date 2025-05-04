@@ -12,10 +12,21 @@ import notFoundMiddleware from "./middlewares/not-found.middleware.js";
 import meRouter from "./routes/me.route.js";
 import authorizationRouter from "./routes/authorization.route.js";
 import { StatusCodes } from "http-status-codes";
+import path from "path";
+import { fileURLToPath } from "url";
+import swaggerUi from "swagger-ui-express";
+import YAML from "yamljs";
 
 const app = express();
 
 app.set("trust proxy", 1 /* number of proxies between user and server */);
+
+//For handling file path when loading swagger.yaml file
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+//SWAGGER DOCS
+const swaggerDocument = YAML.load(path.join(__dirname, "swagger.yaml"));
 
 /**
  * Security and Json usage
@@ -34,8 +45,12 @@ app.use("/api/v1/projects", projectRouter);
 app.use("/api/v1/me", meRouter);
 app.use("/api/v1/admin", authorizationRouter);
 
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 app.get("/", (req, res) => {
-  res.status(StatusCodes.OK).send(`<h2>DevSpace API v1</h2>`);
+  res
+    .status(StatusCodes.OK)
+    .send(`<h1>DevSpace API v1</h1><a href="/api-docs">Documentation</a>`);
 });
 
 app.use(errorMiddleware);
