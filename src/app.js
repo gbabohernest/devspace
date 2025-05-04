@@ -20,11 +20,11 @@ app.set("trust proxy", 1 /* number of proxies between user and server */);
 /**
  * Security and Json usage
  */
-// app.use(limiter);
+app.use(limiter);
 app.use(express.json());
 app.use(helmet());
 app.use(cors());
-// app.use(sanitizeInputMiddleware);
+app.use(sanitizeInputMiddleware);
 
 /**
  * Routes
@@ -36,10 +36,6 @@ app.use("/api/v1/admin/", authorizationRouter);
 
 app.get("/", (req, res) => {
   res.status(StatusCodes.OK).send(`<h2>DevSpace API v1</h2>`);
-});
-
-authRouter.route("/login-test").post((req, res) => {
-  res.json({ message: "login test work" });
 });
 
 app.use(errorMiddleware);
