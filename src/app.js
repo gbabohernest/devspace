@@ -38,6 +38,10 @@ app.get("/", (req, res) => {
   res.status(StatusCodes.OK).send(`<h2>DevSpace API v1</h2>`);
 });
 
+authRouter.route("/login-test").post((req, res) => {
+  res.json({ message: "login test work" });
+});
+
 app.use(errorMiddleware);
 app.use(notFoundMiddleware);
 
