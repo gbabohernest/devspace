@@ -32,7 +32,7 @@ app.use(sanitizeInputMiddleware);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/projects", projectRouter);
 app.use("/api/v1/me", meRouter);
-app.use("/api/v1/admin/", authorizationRouter);
+app.use("/api/v1/admin", authorizationRouter);
 
 app.get("/", (req, res) => {
   res.status(StatusCodes.OK).send(`<h2>DevSpace API v1</h2>`);
