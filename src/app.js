@@ -20,7 +20,7 @@ app.set("trust proxy", 1 /* number of proxies between user and server */);
 /**
  * Security and Json usage
  */
-app.use(limiter);
+// app.use(limiter);
 app.use(express.json());
 app.use(helmet());
 app.use(cors());
