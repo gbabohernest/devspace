@@ -1,0 +1,760 @@
+openapi: 3.0.0
+
+info:
+
+  title: DevSpace API
+
+  description: A RESTful API that allows developers to showcase their projects, manage their profiles, and upload profile avatar images securely.
+
+  contact: {}
+
+  version: '1.0'
+
+servers:
+
+- url: https://devspace-jhys.onrender.com/api/v1
+
+  variables: {}
+
+paths:
+
+  /auth/register:
+
+    post:
+
+      tags:
+
+      - Auth
+
+      summary: Register a user
+
+      operationId: Registerauser
+
+      parameters: []
+
+      requestBody:
+
+        description: ''
+
+        content:
+
+          application/json:
+
+            schema:
+
+              allOf:
+
+              - $ref: '#/components/schemas/RegisterauserRequest'
+
+              - example:
+
+                  username: Your unique username
+
+                  email: Your unique email
+
+                  bio: '[Default will be set if not provided]'
+
+                  password: password
+
+            example:
+
+              username: Your unique username
+
+              email: Your unique email
+
+              bio: '[Default will be set if not provided]'
+
+              password: password
+
+        required: true
+
+      responses:
+
+        '200':
+
+          description: ''
+
+          headers: {}
+
+      deprecated: false
+
+      security: []
+
+  /auth/login:
+
+    post:
+
+      tags:
+
+      - Auth
+
+      summary: Login user
+
+      operationId: Loginuser
+
+      parameters: []
+
+      requestBody:
+
+        description: ''
+
+        content:
+
+          application/json:
+
+            schema:
+
+              allOf:
+
+              - $ref: '#/components/schemas/LoginuserRequest'
+
+              - example:
+
+                  email: your email
+
+                  password: your password
+
+            example:
+
+              email: your email
+
+              password: your password
+
+        required: true
+
+      responses:
+
+        '200':
+
+          description: ''
+
+          headers: {}
+
+      deprecated: false
+
+      security: []
+
+  /projects:
+
+    post:
+
+      tags:
+
+      - Projects
+
+      summary: Create a new project
+
+      operationId: Createanewproject
+
+      parameters: []
+
+      requestBody:
+
+        description: ''
+
+        content:
+
+          application/json:
+
+            schema:
+
+              allOf:
+
+              - $ref: '#/components/schemas/CreateanewprojectRequest'
+
+              - example:
+
+                  title: Your project title
+
+                  description: project description
+
+                  tech:
+
+                  - tech stack
+
+                  - more if you choose
+
+            example:
+
+              title: Your project title
+
+              description: project description
+
+              tech:
+
+              - tech stack
+
+              - more if you choose
+
+        required: true
+
+      responses:
+
+        '200':
+
+          description: ''
+
+          headers: {}
+
+      deprecated: false
+
+      security:
+
+      - bearer: []
+
+    get:
+
+      tags:
+
+      - Projects
+
+      summary: Get all projects
+
+      operationId: Getallprojects
+
+      parameters: []
+
+      responses:
+
+        '200':
+
+          description: ''
+
+          headers: {}
+
+      deprecated: false
+
+      security: []
+
+  /projects/{id}:
+
+    get:
+
+      tags:
+
+      - Projects
+
+      summary: Get single project
+
+      operationId: Getsingleproject
+
+      parameters:
+
+      - name: id
+
+        in: path
+
+        description: ''
+
+        required: true
+
+        style: simple
+
+        schema:
+
+          type: string
+
+      responses:
+
+        '200':
+
+          description: ''
+
+          headers: {}
+
+      deprecated: false
+
+      security: []
+
+    patch:
+
+      tags:
+
+      - Projects
+
+      summary: Update project
+
+      operationId: Updateproject
+
+      parameters:
+
+      - name: id
+
+        in: path
+
+        description: ''
+
+        required: true
+
+        style: simple
+
+        schema:
+
+          type: string
+
+      requestBody:
+
+        description: ''
+
+        content:
+
+          application/json:
+
+            schema:
+
+              allOf:
+
+              - $ref: '#/components/schemas/UpdateprojectRequest'
+
+              - example:
+
+                  title: 'Updated title '
+
+                  description: input your new description here
+
+                  tech:
+
+                  - new or updated tech
+
+                  isPublic: false
+
+            example:
+
+              title: 'Updated title '
+
+              description: input your new description here
+
+              tech:
+
+              - new or updated tech
+
+              isPublic: false
+
+        required: true
+
+      responses:
+
+        '200':
+
+          description: ''
+
+          headers: {}
+
+      deprecated: false
+
+      security:
+
+      - bearer: []
+
+    delete:
+
+      tags:
+
+      - Projects
+
+      summary: Delete project
+
+      operationId: Deleteproject
+
+      parameters:
+
+      - name: id
+
+        in: path
+
+        description: ''
+
+        required: true
+
+        style: simple
+
+        schema:
+
+          type: string
+
+      responses:
+
+        '200':
+
+          description: ''
+
+          headers: {}
+
+      deprecated: false
+
+      security:
+
+      - bearer: []
+
+  /me/projects:
+
+    get:
+
+      tags:
+
+      - me
+
+      summary: Get all my projects
+
+      operationId: Getallmyprojects
+
+      parameters: []
+
+      responses:
+
+        '200':
+
+          description: ''
+
+          headers: {}
+
+      deprecated: false
+
+      security:
+
+      - bearer: []
+
+  /me:
+
+    get:
+
+      tags:
+
+      - me
+
+      summary: About me
+
+      operationId: Aboutme
+
+      parameters: []
+
+      responses:
+
+        '200':
+
+          description: ''
+
+          headers: {}
+
+      deprecated: false
+
+      security:
+
+      - bearer: []
+
+  /me/change-avatar:
+
+    post:
+
+      tags:
+
+      - me
+
+      summary: Upload Avatar
+
+      operationId: UploadAvatar
+
+      parameters: []
+
+      requestBody:
+
+        content:
+
+          multipart/form-data:
+
+            encoding: {}
+
+            schema:
+
+              required:
+
+              - image
+
+              type: object
+
+              properties:
+
+                image:
+
+                  type: string
+
+                  format: binary
+
+        required: false
+
+      responses:
+
+        '200':
+
+          description: ''
+
+          headers: {}
+
+      deprecated: false
+
+      security:
+
+      - bearer: []
+
+  /admin/users:
+
+    get:
+
+      tags:
+
+      - OAuth
+
+      summary: Get users
+
+      operationId: Getusers
+
+      parameters: []
+
+      responses:
+
+        '200':
+
+          description: ''
+
+          headers: {}
+
+      deprecated: false
+
+      security:
+
+      - bearer: []
+
+  /admin/projects:
+
+    get:
+
+      tags:
+
+      - OAuth
+
+      summary: Get projects
+
+      operationId: Getprojects
+
+      parameters: []
+
+      responses:
+
+        '200':
+
+          description: ''
+
+          headers: {}
+
+      deprecated: false
+
+      security:
+
+      - bearer: []
+
+components:
+
+  schemas:
+
+    RegisterauserRequest:
+
+      title: RegisterauserRequest
+
+      required:
+
+      - username
+
+      - email
+
+      - bio
+
+      - password
+
+      type: object
+
+      properties:
+
+        username:
+
+          type: string
+
+        email:
+
+          type: string
+
+        bio:
+
+          type: string
+
+        password:
+
+          type: string
+
+      example:
+
+        username: Your unique username
+
+        email: Your unique email
+
+        bio: '[Default will be set if not provided]'
+
+        password: password
+
+    LoginuserRequest:
+
+      title: LoginuserRequest
+
+      required:
+
+      - email
+
+      - password
+
+      type: object
+
+      properties:
+
+        email:
+
+          type: string
+
+        password:
+
+          type: string
+
+      example:
+
+        email: your email
+
+        password: your password
+
+    CreateanewprojectRequest:
+
+      title: CreateanewprojectRequest
+
+      required:
+
+      - title
+
+      - description
+
+      - tech
+
+      type: object
+
+      properties:
+
+        title:
+
+          type: string
+
+        description:
+
+          type: string
+
+        tech:
+
+          type: array
+
+          items:
+
+            type: string
+
+          description: ''
+
+      example:
+
+        title: Your project title
+
+        description: project description
+
+        tech:
+
+        - tech stack
+
+        - more if you choose
+
+    UpdateprojectRequest:
+
+      title: UpdateprojectRequest
+
+      required:
+
+      - title
+
+      - description
+
+      - tech
+
+      - isPublic
+
+      type: object
+
+      properties:
+
+        title:
+
+          type: string
+
+        description:
+
+          type: string
+
+        tech:
+
+          type: array
+
+          items:
+
+            type: string
+
+          description: ''
+
+        isPublic:
+
+          type: boolean
+
+      example:
+
+        title: 'Updated title '
+
+        description: input your new description here
+
+        tech:
+
+        - new or updated tech
+
+        isPublic: false
+
+  securitySchemes:
+
+    bearer:
+
+      type: http
+
+      scheme: bearer
+
+security: []
+
+tags:
+
+- name: Auth
+
+- name: Projects
+
+- name: me
+
+  description: "Authenticated users details route"
+
+# - name: Authorization
+
+#   description: >-
+
+#     Authorization Routes
+#     Admin operatons
+
+- name: OAuth
+
+
+  description: 'Admin operations'
+
