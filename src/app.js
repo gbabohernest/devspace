@@ -50,7 +50,10 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.get("/", (req, res) => {
   res
     .status(StatusCodes.OK)
-    .send(`<h1>DevSpace API v1</h1><a href="/api-docs">Documentation</a>`);
+    .send(
+      `<h1 style="text-align: center; font-family: Arial, sans-serif; color: #333; font-size: 2.5rem;">DevSpace API v1</h1>` +
+        `<a href="/api-docs" style="display: block; text-align: center; margin-top: 20px; font-size: 1.2rem; color: #007BFF; text-decoration: none;">Documentation</a>`,
+    );
 });
 
 app.use(errorMiddleware);
