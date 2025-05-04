@@ -106,7 +106,7 @@ const loginUser = async (req, res) => {
       .status(StatusCodes.OK)
       .json({ success: true, message: "Login success", token });
   } catch (error) {
-    new CustomApiError(error.message, StatusCodes.INTERNAL_SERVER_ERROR);
+    throw new CustomApiError(error.message, StatusCodes.INTERNAL_SERVER_ERROR);
   }
 };
 export { registerUser, loginUser };
