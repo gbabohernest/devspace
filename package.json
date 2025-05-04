@@ -35,7 +35,9 @@
     "mongodb": "^6.16.0",
     "mongoose": "^8.14.0",
     "multer": "^1.4.5-lts.2",
-    "sanitize-html": "^2.16.0"
+    "sanitize-html": "^2.16.0",
+    "swagger-ui-express": "^5.0.1",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
