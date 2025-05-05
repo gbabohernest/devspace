@@ -1,4 +1,3 @@
-# DevSpace API - Mini Portfolio for Developers
- A RESTful API that allows developers to showcase their projects, manage their profile, and upload project images securely.
+# Dev Portfolio API
 
-
+A mini RESTful API built for developers to showcase their projects — built using Node.js, Express, and MongoDB. Features include authentication, project management, image uploads, pagination, and live API documentation.
