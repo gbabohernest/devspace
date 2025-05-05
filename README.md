@@ -1,4 +1,4 @@
-# 💼 DevSpace 
+# DevSpace - Developers Portfolio  💼  API 
 A **production-ready REST API** for developers to showcase their projects, manage their profile, and upload avatars.  
 Built with **Node.js**, **Express.js**, and **MongoDB**, and fully documented with **Swagger UI**.
 
@@ -23,3 +23,12 @@ Built with **Node.js**, **Express.js**, and **MongoDB**, and fully documented wi
 - ☁️ Deployed on Render
 
 ---
+
+## 🧑‍💻 User Features
+
+- Register/Login/Logout
+- View & update personal information
+- Upload or change avatar
+- Create, update, or delete own projects
+- View public projects from all users
+- Fetch personal projects (both public and private)
