@@ -94,7 +94,7 @@ Built with **Node.js**, **Express.js**, and **MongoDB**, and fully documented wi
 
 ## 🔍 Search , Pagination & Sort
 
-- Search by keyword across selected fields `[ **title, description, tech** ]`
+- Search by keyword across selected fields : **`title`**, **`description`**,  **`tech`**
 - Pagination with `page` and `limit` query params
 - Sort by `updated date`
 - Works on:
