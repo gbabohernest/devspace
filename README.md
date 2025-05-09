@@ -2,6 +2,17 @@
 A **production-ready REST API** for developers to showcase their projects, manage their profile, and upload avatars.  
 Built with **Node.js**, **Express.js**, and **MongoDB**, and fully documented with **Swagger UI**.
 
+
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![Express](https://img.shields.io/badge/Express.js-404D59?style=for-the-badge)
+![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
+![Cloudinary](https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white)
+![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)
+[![Deployed](https://img.shields.io/badge/Deployed-Live-green?style=for-the-badge)](https://devspace-jhys.onrender.com/api-docs)
+
+---
+
+
 ## 🚀 Live Demo
 🔗 [DevSpace API](https://devspace-jhys.onrender.com)  
 📘 [API Docs (Swagger UI)](https://devspace-jhys.onrender.com/api-docs)
